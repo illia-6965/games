@@ -110,11 +110,7 @@ methods:{
         if(this.eatTail(pieceOfSnake.x, pieceOfSnake.y)){
             return  clearInterval(this.interval)
         }
-        // this.fakeSnake.push(pieceOfSnake)
-        // this.fakeSnake.shift()
-        // if(this.eatTail){
-        //     return  clearInterval(this.interval)
-        // }
+    
 
         this.snake.push(pieceOfSnake)
         this.snake.shift()
