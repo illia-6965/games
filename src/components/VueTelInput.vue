@@ -33,6 +33,7 @@ data(){
                 showDialCode: true,
             },
             validCharactersOnly: true,
+            defaultCountry: 'DE',
         },
     }
 },

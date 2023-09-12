@@ -1,33 +1,34 @@
 <template>
-    <div class="wrapper-registr">
-        <div class="wrapper-log-in">
-            <my-btn
-                class="my-btn"
-                :contentPart="'Log-in'" 
-                :backlight="activeField"
-                @click="clickLogIn"          
-            />
-            <Transition>
-                    <windows-reg-log v-if="activeField"
-                        :contentPart="'Login with password'"
-                        :windowLogIn="true"     
-                    />
-            </Transition>  
+    <div class="wrapper">
+        <div class="log-in-sign-up">
+
+       
+                <Transition name="log-in">
+                    <div class="wrapper-log-in" v-if="activeField">
+                        <windows-reg-log 
+                            :contentPart="'Login with password'"
+                            :windowLogIn="true"     
+                            @openAnotherWindow="(data) => activeField = !data"
+                            :linkFoкEach="'Sign-up'"
+                        />
+                    </div>
+                </Transition>  
+         
+
+            
+                <Transition name="sign-up"> 
+                    <div class="wrapper-sing-up"  v-if="!activeField">
+                        <windows-reg-log
+                            :contentPart="'Registration of a regular customer'"
+                            @openAnotherWindow="(data) => activeField = data"
+                            :linkFoкEach="'Log-in'"
+                        /> 
+                    </div>
+                </Transition>    
+          
+
         </div>
-        <div class="wrapper-sing-up">
-            <my-btn
-                class="my-btn"
-                :contentPart="'Sing-up'"  
-                :backlight="!activeField"
-                @click="clickSinUp"         
-            />
-            <Transition>
-                    <windows-reg-log v-if="!activeField"
-                        :contentPart="'Registration of a regular customer'"
-                        @openLogInWind="(data) => activeField = data"
-                    /> 
-            </Transition>    
-        </div>
+        
        
     </div>
 
@@ -47,49 +48,83 @@ export default {
         }
     },
     methods:{
-        clickLogIn(){
-            this.activeField = !this.activeField
-        },
-        clickSinUp(){
-            this.activeField = !this.activeField
-        },
+     
+    },
+    mounted(){
+     
     }
 }
 </script>
 
 <style lang="scss" scoped>
-.v-enter-active {
-  transition: all 0.5s ease-out;
-}
-.v-leave-active {
-  transition: all 0.5s cubic-bezier(1, 0.5, 0.8, 1);
-}
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
+
+@keyframes game-active {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
-.wrapper-registr{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+@keyframes game-leave {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.sign-up-enter-active {
+    animation: game-active 0.8s linear;
+}
+
+.sign-up-leave-active {
+    animation: game-leave 0.6s linear;
+}
+
+.log-in-enter-active {
+    animation: game-active 0.8s linear;
+}
+
+.log-in-leave-active {
+    animation: game-leave 0.6s linear;
+}
+
+.wrapper{
     width: 100%;
-    .wrapper-log-in,.wrapper-sing-up{
-        width: 300px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .log-in-sign-up{
         position: relative;
-        height: 400px;
-        .my-btn{
+        width: 290px;
+        height: 410px;
+        overflow: hidden;
+        z-index: 10;
+        .wrapper-sing-up{
+            width: 100%;
+            height: 100%;
             position: absolute;
-            bottom: 100%;
-            left: calc(50% - 75px);
-            margin-bottom: 20px;
+            left: 0;
+            top: 0;
+        }
+        .wrapper-log-in{
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
         }
     }
-    .wrapper-log-in{
-        margin-right: 50px;
-    }
-    
 }
 
 </style>

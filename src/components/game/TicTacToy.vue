@@ -1,8 +1,5 @@
 <template>
-    <div class="main-wrapper">
-        <div class="header">
-            <h2>game</h2>
-        </div>
+   
 
         <div class="wrapper-game">
             <Transition name="start-game">
@@ -37,14 +34,14 @@
             <Transition name="show-winner">
                 <div class="winner" v-if="winner">
                     <p class="winner__extra-inf" v-if="winner === 'user' && numberOfUserWins === 1">
-                        Now the bot has remembered your winning combination, and will not make this mistake!!! <br>This logic will continue in the future, in case of your victories.
+                        Now the bot has remembered your winning combination, and will not make this mistake!!! <br>This logic will continue in the future, you can only win 8 times.
                     </p>
                     <p class="winner__name">Winner : {{ winner }}</p>
                     <my-btn class="my-btn" :contentPart="'CONTINUE GAME'" @click="continueGame"/>
                 </div>
             </Transition>
         </div>
-    </div>
+
 
 </template>
 
@@ -55,25 +52,25 @@ export default {
     components:{
         MyBtn
     },
-    watch:{
-        winner(){
-            if(this.winner === 'user'){
-                this.$emit('update:numberOfWins', this.numberOfUserWins)
-            }
-            if(this.winner === 'bot'){
-                console.log(this.numberOfLosses, 'this.numberOfLosses')
-                this.$emit('update:numberOfLosses', this.numberOfLosses)
-            }
-        }
-    },
-    props:{
-        numberOfWins:{
-            type: Number,
-        },
-        numberOfLosses:{
-            type: Number,
-        }
-    },
+    // watch:{
+    //     winner(){
+    //         if(this.winner === 'user'){
+    //             this.$emit('update:numberOfWins', this.numberOfUserWins)
+    //         }
+    //         if(this.winner === 'bot'){
+    //             console.log(this.numberOfLosses, 'this.numberOfLosses')
+    //             this.$emit('update:numberOfLosses', this.numberOfLosses)
+    //         }
+    //     }
+    // },
+    // props:{
+    //     numberOfWins:{
+    //         type: Number,
+    //     },
+    //     numberOfLosses:{
+    //         type: Number,
+    //     }
+    // },
     data(){
         return{
             startGame: false,
@@ -86,8 +83,13 @@ export default {
             correctAnswers:[],
             winner:'',
             historyOfWinners:'', 
-            numberOfUserWins: 0,
-            numberOfLosses: 0
+            numberOfUserWins:0,
+            // gameResult:{
+            //     userWon: 0,
+            //     botWon: 0,
+            //     draw: 0,
+            // }
+          
         }
     },
     computed:{   
@@ -115,7 +117,7 @@ export default {
                 this.historyOfWinners = 'user'
             }
             if(this.winner === 'bot'){
-                ++this.numberOfLosses
+              
             }
         
             return resultData
@@ -196,21 +198,34 @@ export default {
               this.correctAnswers.push(arr)
            
         },
+        sentData(name, data){
+            this.$emit(name, data)
+        },
 
         determineWinner(){
             let counterUser = 0
             let counterBot = 0
             for(let i = 0; i < this.correctAnswers.length; i++){
                counterUser = this.userAnswers.reduce((acc, item) => this.correctAnswers[i].includes(item) ? ++acc : acc, 0)
-               if(counterUser === 3){ return 'user' }  
+               if(counterUser === 3){
+             
+                    this.sentData('ticTacData', true) 
+                    return 'user' 
+                }  
             }
 
             for(let i = 0; i < this.correctAnswers.length; i++){
                 counterBot = this.botAnswers.reduce((acc, item) => this.correctAnswers[i].includes(item) ? ++acc : acc, 0)
-               if(counterBot === 3){ return 'bot' }
+               if(counterBot === 3){ 
+             
+                    this.sentData('ticTacData', false) 
+                    return 'bot' 
+                }
             }
                 
             if([...this.userAnswers, ...this.botAnswers].length === 9){
+       
+                this.sentData('ticTacData', 0) 
                 return 'draw'
             }
         },
@@ -303,13 +318,13 @@ export default {
 
 <style lang="scss" scoped>
 .wrapper-game{
-    width: 500px;
-    height: 500px;
-    background-color: yellow;
+    width: 460px;
+    height: 460px;
+    background-color: #b6b608;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr; 
     grid-template-rows: 1fr 1fr 1fr;
-    box-sizing: content-box;
+    // box-sizing: content-box;
     border: 4px solid black;
     justify-items: center;
     align-items: center;
@@ -317,7 +332,7 @@ export default {
    .passive-square{
         width: 100%;
         height: 100%;
-        background-color: yellow;
+        background-color: #b6b608;
         border: solid 2px black;
         display: flex;
         justify-content: center;
@@ -392,7 +407,7 @@ export default {
    .wrapper-choose-option{
         width: 100%;
         height: 100%;
-        background-color: yellow;
+        background-color: #b6b608;
         position: absolute;
         left: 0;
         top: 0;
@@ -405,7 +420,7 @@ export default {
         p{
             grid-column: 1 / -1;
             grid-row: 2;
-            font-size: 30px;
+            font-size: 28px;
             justify-self: center;
             
         }
@@ -425,7 +440,7 @@ export default {
    .wrapper-start-game{
         width: 100%;
         height: 100%;
-        background-color: yellow;
+        background-color: #b6b608;
         position: absolute;
         left: 0;
         top: 0;
@@ -436,10 +451,11 @@ export default {
         padding: 100px;
         justify-content: space-evenly;
         h2{
-            font-size: 49px;
+            font-size: 38px;
+            font-weight: bold;
         }
         p{
-            font-size: 23px;
+            font-size: 16px;
         }
         .btn{
             font-size: 20px;

@@ -5,16 +5,17 @@ const routes = [
 
   {
     path: '/',
-    name: 'about',
     redirect: {path: '/login'},
+    
   },
+ 
   {
     path: '/login',
     name: 'login',
     component: Registration
   },
   {
-    path: '/home/:email',
+    path: '/:email',
     name: 'home',
     component: HomePage
   },

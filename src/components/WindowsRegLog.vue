@@ -1,20 +1,22 @@
 <template>
   <div class="wrapper-reg-log" :class="{'wrapper-log': windowLogIn}">
-    <h3 class="header">{{ contentPart }}</h3>
-    <!-- <div class="wrapper-form-add-user"> -->
+
+        <h3 class="header">{{ contentPart }}</h3>
+        <!-- <div class="wrapper-form-add-user"> -->
+
         <form @submit.prevent class="data-entry-fields" :class="{'extra-styles-windowLogIn': windowLogIn}">
             <input 
                 v-if="!windowLogIn"
                 class="text-field" 
                 type="text" 
                 placeholder="Name"
-                v-model.lazy="formData.name"
+                v-model.lazy="userData.name"
                 :class="formDataConfirmation.nameData.class"
             />
             <div class="wrapper-phone-number" v-if="!windowLogIn">
                 <!-- <font-awesome-icon icon="fa-solid fa-user-secret" /> -->
                 <vue-tel-input 
-                    @phoneNumber="(data) => formData.number = data"
+                    @phoneNumber="(data) => userData.number = data"
                     :classForNumber="formDataConfirmation.numberData.class"
                 />
                 <!--       
@@ -52,7 +54,7 @@
                 class="text-field" 
                 type="text"
                 placeholder="E-mail"
-                v-model.lazy="formData.email"
+                v-model.lazy="userData.email"
                 :class="formDataConfirmation.emailData.class"
             />
             </div>
@@ -67,14 +69,17 @@
                     class="text-field" 
                     type="password" 
                     placeholder="Password"
-                    v-model.lazy="formData.password"
+                    v-model.lazy="userData.password"
                     :class="formDataConfirmation.passwordData.class"
                 />
             </div>
             <my-btn @click="checkFormAndSubmit" :contentPart="'SUBMIT'"/>
         </form>
     <!-- </div> -->
-    <a class="link" v-if="!windowLogIn" @click="() => $emit('openLogInWind', true)">Log in</a>
+    <div>
+        <a class="link-to-another-window" @click="() => $emit('openAnotherWindow', true)">{{linkFoкEach}}</a>
+    </div>
+   
   </div>
 </template>
 <!-- @keydown.delete.prevent="resetState" -->
@@ -96,7 +101,10 @@ export default {
             default(){
                 return false
             }
-        }   
+        },
+        linkFoкEach:{
+            type: String,
+        }
     },
     data(){
         return{
@@ -106,52 +114,62 @@ export default {
                 nameData: '',
                 numberData: '',
             },
-            formData:{
+            userData:{
                 number:'',
                 email:'',
                 name:'',
                 password:'',
-                record: 0,
-                numberOfWins: 0,
-                numberOfLosses: 0,
+                gameData:{
+                    snake:{
+                        games:0,
+                        apples:0,
+                        speed:0
+                    },
+                    ticTacToe:{
+                        botWon:0,
+                        userWon:0,
+                        draw:0
+                    }
+                }
+                
             }
         }
     },
     computed:{
         checkEmail(){
             const reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/
-            return reg.test(this.formData.email) ? {class:'correct'} : {class:'in-correct'}
+            return reg.test(this.userData.email) ? {class:'correct'} : {class:'in-correct'}
         },
         checkNumber(){
-            return this.formData.number.length <= 18 && this.formData.number.length >= 10 ? {class:'correct'} : {class:'in-correct'}
+            return this.userData.number.length <= 18 && this.userData.number.length >= 10 ? {class:'correct'} : {class:'in-correct'}
         },
         checkName(){
-            return this.formData.name.length > 3 && this.formData.name.length < 20 ? {class:'correct'} : {class:'in-correct'}
+            return this.userData.name.length > 3 && this.userData.name.length < 20 ? {class:'correct'} : {class:'in-correct'}
         },
         checkPassword(){
             const regLowercase = /[a-z]/g
             const regUppercase = /[A-Z]/g
             const regNumbers = /[0-9]/g
-            const pasLength = this.formData.password.length
+            const pasLength = this.userData.password.length
             if(pasLength <= 8){
                 return  {
                             error:'must be at least 8 characters !',
                             class: 'in-correct'
                         }
             }
-            if(!regLowercase.test(this.formData.password)){
+            if(!regLowercase.test(this.userData.password)){
                 return  {
                             error:'must be at least one lowercase letter !',
                             class: 'in-correct'
                         }
             }
-            if(!regUppercase.test(this.formData.password)){
+            if(!regUppercase.test(this.userData.password)){
                 return  {
                             error:'must be at least one UpperCase letter !',
                             class: 'in-correct'
                         }
             }
-            if(!regNumbers.test(this.formData.password)){
+            if(!regNumbers.test(this.userData.password)){
                 return  {
                             error:'must be at least one number !',
                             class: 'in-correct'
@@ -167,12 +185,17 @@ export default {
             if(!this.windowLogIn){
                 this.checkForm()
                 let checkError = Object.values(this.formDataConfirmation).find(item => item.class === 'in-correct')
-                let existEmail = Object.keys(localStorage).find(item => item === this.formData.email)
+                let existEmail = Object.keys(localStorage).find(item => item === this.userData.email)
+
                 if(checkError === undefined && existEmail === undefined){
-                    this.formData.id = Date.now()
-                    this.setCurrentUser(this.formData)
-                    localStorage.setItem(this.formData.email, JSON.stringify(this.formData))
-                    this.$router.push(`/home/${this.formData.email}`)
+                    this.userData.id = Date.now()
+
+                    // this.setCurrentUser(this.userData)
+                    localStorage.setItem('currentUser', JSON.stringify(this.userData.name))
+                    localStorage.setItem(this.userData.email, JSON.stringify(this.userData))
+                    
+
+                    this.$router.push(`/${this.userData.email}`)
                 }
                 if(existEmail !== undefined){
                     this.formDataConfirmation.emailData = { class: 'in-correct',
@@ -180,20 +203,22 @@ export default {
                 }
             }
             else{
-                let emailKey = Object.keys(localStorage).find(item => item === this.formData.email)
+                let emailKey = Object.keys(localStorage).find(item => item === this.userData.email)
                 
                 if(emailKey === undefined){
                     this.formDataConfirmation.emailData = { class: 'in-correct',
                                                             error: 'in-correct email'}      
                 }else{
-                    if(JSON.parse( localStorage.getItem(emailKey)).password != this.formData.password){
+                    if(JSON.parse( localStorage.getItem(emailKey)).password != this.userData.password){
                         this.formDataConfirmation.passwordData = {class: 'in-correct',
                                                                   error: 'in-correct password'}
                         this.formDataConfirmation.emailData = { class: 'correct'}
                     }else{
-                        this.setCurrentUser(JSON.parse(localStorage.getItem(emailKey)))
+                        let user = JSON.parse(localStorage.getItem(emailKey))
+                   
+                        localStorage.setItem('currentUser', JSON.stringify(user.name))
                         // 'id to home'
-                        this.$router.push(`/home/${JSON.parse(localStorage.getItem(emailKey)).email}`)
+                        this.$router.push(`/${user.email}`)
                     }
                 }
             }
@@ -213,9 +238,9 @@ export default {
 
 .wrapper-reg-log{
     width: 100%;
-    // max-height: 600px;
-    // min-height: 400px;
+    
     height: 100%;
+   
     display: flex;
     flex-direction: column;
     background-color: #f2e6e6;
@@ -223,7 +248,8 @@ export default {
     padding: 20px 5px 20px 5px;
     border-top: 3px solid red;
     
-    a{
+    .link-to-another-window{  
+        // display: inline !important;
         cursor: pointer;
     }
     .header{
@@ -280,6 +306,6 @@ export default {
     }
 }
 .wrapper-log{
-    height: 300px;
+    padding: 20px 5px;
 }
 </style>
