@@ -19,3 +19,4 @@ npm run build
 See [Configuration Reference](https://cli.vuejs.org/config/).
 # games
 # illia-6965.github.io
+# illia-6965.github.io
